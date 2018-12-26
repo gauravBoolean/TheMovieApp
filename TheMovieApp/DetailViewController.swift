@@ -59,6 +59,17 @@ class DetailViewController: UIViewController {
         return label
     }()
 
+    let movie : Movie
+    
+    init(movie : Movie) {
+        self.movie = movie
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
    
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,10 +104,10 @@ class DetailViewController: UIViewController {
                 
             ])
         
-        lblMovieTitle.text = "hateful eight"
-        lblReleaseDate.text = "19 aug 2019"
-        lblUserRating.text = "4.5 star"
-        lblPlotSynopsis.text = "sdjf dsiof idosjf sdiofj cosidf vsidh cvoidsj viosdj voisjd vosjmn vsdiojv svoisfjs isfhdnxvsiof cviowfskv iwfijssjfsjv isfdv9f hvhsd fcjsifsjfdisd"
+        lblMovieTitle.text = movie.originalTitle ?? ""
+        lblReleaseDate.text = movie.releaseDate ?? ""
+        lblUserRating.text = "\(movie.voteAverage) star"
+        lblPlotSynopsis.text = movie.overview
         
         
         lblPlotSynopsis.sizeToFit()

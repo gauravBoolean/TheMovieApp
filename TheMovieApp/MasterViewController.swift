@@ -7,9 +7,13 @@
 //
 
 import UIKit
+import  Alamofire
 
 class MasterViewController: UIViewController {
 
+    var currentPageNumber : Int = 1
+    
+    
     let collectionView : UICollectionView = {
         
         let flowLayout = UICollectionViewFlowLayout()
@@ -22,7 +26,7 @@ class MasterViewController: UIViewController {
         return collection
     }()
     
-    var movieDataCollection = [String]()
+    var movieDataCollection = [Movie]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,10 +46,24 @@ class MasterViewController: UIViewController {
         collectionView.dataSource = self
         
         
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "search", style: .done, target: self, action: #selector(MasterViewController.searchClicked))
+        
+        fetchTrendingMovies()
+        
+    }
+    
+    @objc func searchClicked(){
+        self.navigationItem.titleView = UISearchBar()
     }
     
     func loadFalseData(){
-        self.movieDataCollection = ["title 1", "title 2" , "title 3" , "title 4" , "title 5" , "title 6" , "title 7"]
+        
+        
+//        Movie(from: <#T##Decoder#>)
+        
+        
+       // self.movieDataCollection = ["title 1", "title 2" , "title 3" , "title 4" , "title 5" , "title 6" , "title 7"]
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -70,15 +88,18 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
         
         let dataHolder = self.movieDataCollection[indexPath.row]
         
-        cellView.lblTitle.text = dataHolder
+        cellView.lblTitle.text = dataHolder.title
         
-        cellView.backgroundColor = .blue
+        cellView.backgroundColor = .red
         
         return cellView
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.navigationController?.pushViewController(DetailViewController(), animated: true)
+        
+        
+        
+//        self.navigationController?.pushViewController(DetailViewController(), animated: true)
         
     }
     
@@ -104,4 +125,31 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
 }
 
 
+extension MasterViewController {
+    func fetchTrendingMovies(){
+        let url = ServicePathLocator.trending.getUrl(with: ["movie" , "week"])
+        let param : [String : AnyObject] = ["api_key" : "15686190614b58f74e62506048465097" as AnyObject , "page" : self.currentPageNumber as AnyObject]
+        excuteRESTService(type: TrendingMovies.self, Alamofire.HTTPMethod.get, serviceUrl: url, param: param){
+            trendingMovies  , err , status in
+            
+            if let resMovies = trendingMovies{
+                self.movieDataCollection.append(contentsOf: resMovies.results)
+                self.currentPageNumber += 1
+                OperationQueue.main.addOperation {
+                    self.collectionView.reloadData()
+                }
+                
+            }
+        }
+    }
+}
 
+
+class CustomAsyncImageView : UIImageView{
+    var currentUrlString : String?
+    
+    func loanAsyncImage(){
+        
+    }
+    
+}

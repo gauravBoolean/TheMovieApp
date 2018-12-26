@@ -14,6 +14,7 @@
 		B8CA582A21D0FB0100E0D2AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B8CA582921D0FB0100E0D2AA /* Assets.xcassets */; };
 		B8CA582D21D0FB0100E0D2AA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8CA582B21D0FB0100E0D2AA /* LaunchScreen.storyboard */; };
 		B8CA583521D116BF00E0D2AA /* UIComponants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CA583421D116BF00E0D2AA /* UIComponants.swift */; };
+		B8CA583721D3270E00E0D2AA /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CA583621D3270E00E0D2AA /* NetworkManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		B8CA582C21D0FB0100E0D2AA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B8CA582E21D0FB0100E0D2AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B8CA583421D116BF00E0D2AA /* UIComponants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIComponants.swift; sourceTree = "<group>"; };
+		B8CA583621D3270E00E0D2AA /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 				B8CA582B21D0FB0100E0D2AA /* LaunchScreen.storyboard */,
 				B8CA582E21D0FB0100E0D2AA /* Info.plist */,
 				B8CA583421D116BF00E0D2AA /* UIComponants.swift */,
+				B8CA583621D3270E00E0D2AA /* NetworkManager.swift */,
 			);
 			path = TheMovieApp;
 			sourceTree = "<group>";
@@ -204,6 +207,7 @@
 			files = (
 				B8CA582521D0FB0000E0D2AA /* DetailViewController.swift in Sources */,
 				B8CA583521D116BF00E0D2AA /* UIComponants.swift in Sources */,
+				B8CA583721D3270E00E0D2AA /* NetworkManager.swift in Sources */,
 				B8CA582321D0FB0000E0D2AA /* MasterViewController.swift in Sources */,
 				B8CA582121D0FB0000E0D2AA /* AppDelegate.swift in Sources */,
 			);
