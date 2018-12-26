@@ -44,9 +44,6 @@ class MasterViewController: UIViewController {
     
     var currentSearchPageNumber : Int = 1
     
-//dummy data for testing
-//    let imgData = ["https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_groupmessage_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_homework_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_classwork_cl.png" ,  "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_onetomessage_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_attendance.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_marks.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_memories.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_diary.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_timetable.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_schoolfees.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_worksheets.png"]
-    
     let collectionView : UICollectionView = {
         
         let flowLayout = UICollectionViewFlowLayout()
@@ -64,7 +61,7 @@ class MasterViewController: UIViewController {
     var searchMovieDataCollection = [Movie]()
     var isCurrentlySearching : Bool = false
     
-//    var movieDataCollection = [String]()
+
     
     var sortDescriptor : MovieSortDescriptor? {
         didSet{
@@ -87,7 +84,7 @@ class MasterViewController: UIViewController {
             collectionView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0),
             collectionView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0),
             ])
-        loadFalseData()
+       
         
         collectionView.backgroundColor = .green
         collectionView.delegate = self
@@ -102,6 +99,11 @@ class MasterViewController: UIViewController {
         
         fetchTrendingMovies()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        super.viewWillAppear(animated)
     }
     
     @objc func searchClicked(){
@@ -151,21 +153,15 @@ class MasterViewController: UIViewController {
     
     func setSorting(){
         if let sortD = sortDescriptor{
-            self.movieDataCollection.sort(by: sortD.getSortDescriptor())
+            if isCurrentlySearching{
+                self.searchMovieDataCollection.sort(by: sortD.getSortDescriptor())
+            }
+            else{
+                self.movieDataCollection.sort(by: sortD.getSortDescriptor())
+            }
             self.collectionView.reloadData()
         }
         
-    }
-    
-    func loadFalseData(){
-        
-        
-//        self.movieDataCollection = ["title 1", "title 2" , "title 3" , "title 4" , "title 5" , "title 6" , "title 7" , "title 8" , "title 9" , "title 10"]
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        
-        super.viewWillAppear(animated)
     }
 
 }
