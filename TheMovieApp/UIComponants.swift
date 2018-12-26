@@ -8,13 +8,14 @@
 
 import UIKit
 
+let moviePosterImageCache = NSCache<NSString, UIImage>()
+
 
 class MoviePosterCollectionViewCell : UICollectionViewCell{
     
     
-    let imgWithBadge : UIImageView = {
-        let img = UIImageView()
-        
+    let imgWithBadge : CustomAsyncImageView = {
+        let img = CustomAsyncImageView()        
         img.contentMode = .scaleAspectFit
         img.translatesAutoresizingMaskIntoConstraints = false
         return img
@@ -43,8 +44,8 @@ class MoviePosterCollectionViewCell : UICollectionViewCell{
             //imgWithBadge.leftAnchor.constraint(equalTo: self.contentView.leftAnchor, constant: 0),
             //imgWithBadge.rightAnchor.constraint(equalTo: self.contentView.rightAnchor, constant: 0),
             imgWithBadge.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 15),
-            imgWithBadge.widthAnchor.constraint(equalToConstant: 30),
-            imgWithBadge.heightAnchor.constraint(equalToConstant: 30)
+            imgWithBadge.widthAnchor.constraint(equalToConstant: 60),
+            imgWithBadge.heightAnchor.constraint(equalToConstant: 60)
             ])
         
         NSLayoutConstraint.activate([
@@ -64,6 +65,29 @@ class MoviePosterCollectionViewCell : UICollectionViewCell{
     
     required init?(coder aDecoder: NSCoder) {
         fatalError()
+    }
+    
+}
+
+
+class CustomAsyncImageView : UIImageView{
+    var currentUrlString : String?
+    
+    func loanAsyncImage(urlString : String){
+        currentUrlString = urlString
+        
+        image = nil
+        if let img = moviePosterImageCache.object(forKey: urlString as NSString){
+            self.image = img
+            return
+        }
+        
+        loadImageData(urlString: urlString){ img in
+            if self.currentUrlString == urlString{
+                self.image = img
+            }
+            moviePosterImageCache.setObject(img, forKey: urlString as NSString)
+        }
     }
     
 }

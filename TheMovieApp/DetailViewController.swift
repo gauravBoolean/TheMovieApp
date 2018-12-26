@@ -10,8 +10,8 @@ import UIKit
 
 class DetailViewController: UIViewController {
     
-    let posterImageView : UIImageView = {
-        let img = UIImageView()        
+    let posterImageView : CustomAsyncImageView = {
+        let img = CustomAsyncImageView()        
         img.contentMode = .scaleAspectFit
         img.translatesAutoresizingMaskIntoConstraints = false
         return img
@@ -60,8 +60,9 @@ class DetailViewController: UIViewController {
     }()
 
     let movie : Movie
+ 
     
-    init(movie : Movie) {
+    init(movie : Movie ) {
         self.movie = movie
         super.init(nibName: nil, bundle: nil)
     }
@@ -82,7 +83,7 @@ class DetailViewController: UIViewController {
         view.addSubview(lblPlotSynopsis)
         
         NSLayoutConstraint.activate([
-                posterImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
+                posterImageView.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10),
                 posterImageView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10),
                 posterImageView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10),
                 posterImageView.heightAnchor.constraint(equalToConstant: 200),
@@ -106,9 +107,9 @@ class DetailViewController: UIViewController {
         
         lblMovieTitle.text = movie.originalTitle ?? ""
         lblReleaseDate.text = movie.releaseDate ?? ""
-        lblUserRating.text = "\(movie.voteAverage) star"
+        lblUserRating.text = "\(movie.voteAverage ?? 0) star"
         lblPlotSynopsis.text = movie.overview
-        
+        posterImageView.loanAsyncImage(urlString: imageBaseUrl + (movie.posterPath ?? ""))
         
         lblPlotSynopsis.sizeToFit()
     }

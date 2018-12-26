@@ -10,9 +10,11 @@ import Foundation
 import Alamofire
 
 let baseUrl = "https://api.themoviedb.org/3/"
+let imageBaseUrl = "https://image.tmdb.org/t/p/w500/"
 
 enum ServicePathLocator : String {
     case trending = "trending"
+    case search = "search/movie"
     
     
     func getUrl(with args : [String]) -> URL{
@@ -23,7 +25,8 @@ enum ServicePathLocator : String {
             })
             let url_str = baseUrl + self.rawValue + params_str
             return URL(string: url_str)!
-            
+        case .search:
+            return URL(string: baseUrl + self.rawValue)!
         }
     }
 }
@@ -81,19 +84,27 @@ func excuteRESTService<T : Codable>(type : T.Type , _ method: Alamofire.HTTPMeth
         
         let jsonDecoder = JSONDecoder()
         
-        guard let decodedResult  = try? jsonDecoder.decode(inferType, from: data) else {
-            return
+//        guard let decodedResult  = try? jsonDecoder.decode(inferType, from: data) else {
+//            return
+//        }
+        
+        do{
+            let decodedResult  = try jsonDecoder.decode(inferType, from: data)
+            print(decodedResult)
+            completion(decodedResult, nil , nil)
         }
-        print(decodedResult)
-        completion(decodedResult, nil , nil)
+        catch {
+            print("\(error)")
+        }
+        
         
         return
         
     })
 }
 
-func loadImageData(urlString : String ,  successCompletionBlock : @escaping (UIImage)->()){    
-    Alamofire.download(urlString).responseData{
+func loadImageData(urlString : String ,  successCompletionBlock : @escaping (UIImage)->()){
+    Alamofire.request(urlString).responseData{
         response in
         if let data  = response.result.value , let img = UIImage(data: data){
             successCompletionBlock(img)
@@ -104,9 +115,9 @@ func loadImageData(urlString : String ,  successCompletionBlock : @escaping (UII
 
 
 struct TrendingMovies: Codable {
-    let page: Int
+    let page: Int?
     let results: [Movie]
-    let totalPages, totalResults: Int
+    let totalPages, totalResults: Int?
     
     enum CodingKeys: String, CodingKey {
         case page, results
@@ -117,17 +128,17 @@ struct TrendingMovies: Codable {
 
 struct Movie: Codable {
     let adult: Bool?
-    let backdropPath: String
-    let genreIDS: [Int]
-    let id: Int
-    let originalLanguage: OriginalLanguage
+    let backdropPath: String?
+    let genreIDS: [Int]?
+    let id: Int?
+    let originalLanguage: String?
     let originalTitle: String?
-    let overview, posterPath: String
+    let overview, posterPath: String?
     let releaseDate, title: String?
     let video: Bool?
-    let voteAverage: Double
-    let voteCount: Int
-    let popularity: Double
+    let voteAverage: Double?
+    let voteCount: Int?
+    let popularity: Double?
     let firstAirDate, name: String?
     let originCountry: [String]?
     let originalName: String?
@@ -152,12 +163,6 @@ struct Movie: Codable {
         case originalName = "original_name"
     }
 }
-
-enum OriginalLanguage: String, Codable {
-    case en = "en"
-    case zh = "zh"
-}
-
 
 
 extension Request {

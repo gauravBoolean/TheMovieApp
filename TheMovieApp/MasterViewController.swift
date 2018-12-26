@@ -9,10 +9,43 @@
 import UIKit
 import  Alamofire
 
-class MasterViewController: UIViewController {
+enum MovieSortDescriptor {
+    case POPULAR_ASC
+    case POPULAR_DESC
+    case RATING_HIGH
+    case RATING_LOW
+    
+    
+    func getSortDescriptor()-> ((Movie , Movie)->Bool){
+        switch self {
+        case .POPULAR_ASC:
+            return {a , b in
+                a.popularity ?? 0 < b.popularity ?? 0
+            }
+        case .POPULAR_DESC:
+            return {a , b in
+                a.popularity ?? 0 > b.popularity ?? 0
+            }
+        case .RATING_LOW:
+            return {a , b in
+                a.voteAverage ?? 0 < b.voteAverage ?? 0
+            }
+        case .RATING_HIGH:
+            return {a , b in
+                a.voteAverage ?? 0 > b.voteAverage ?? 0
+            }
+        }
+    }
+}
 
+class MasterViewController: UIViewController {
+    
     var currentPageNumber : Int = 1
     
+    var currentSearchPageNumber : Int = 1
+    
+//dummy data for testing
+//    let imgData = ["https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_groupmessage_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_homework_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_classwork_cl.png" ,  "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_onetomessage_cl.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_attendance.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_marks.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_memories.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_diary.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_timetable.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_schoolfees.png" , "https://s3.ap-south-1.amazonaws.com/teno-icons/homePage/ios/2x/ic_home_worksheets.png"]
     
     let collectionView : UICollectionView = {
         
@@ -27,6 +60,21 @@ class MasterViewController: UIViewController {
     }()
     
     var movieDataCollection = [Movie]()
+    
+    var searchMovieDataCollection = [Movie]()
+    var isCurrentlySearching : Bool = false
+    
+//    var movieDataCollection = [String]()
+    
+    var sortDescriptor : MovieSortDescriptor? {
+        didSet{
+            setSorting()
+        }
+    }
+    
+    var searchBar: UISearchBar?
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,24 +94,73 @@ class MasterViewController: UIViewController {
         collectionView.dataSource = self
         
         
+        let btnSearch: UIBarButtonItem = UIBarButtonItem(title: "search", style: .done, target: self, action: #selector(MasterViewController.searchClicked))
+       
+        self.navigationItem.rightBarButtonItem = btnSearch
         
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "search", style: .done, target: self, action: #selector(MasterViewController.searchClicked))
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Sort", style: .plain, target: self, action: #selector(MasterViewController.sortClicked))
         
         fetchTrendingMovies()
         
     }
     
     @objc func searchClicked(){
-        self.navigationItem.titleView = UISearchBar()
+        if isCurrentlySearching{
+            self.searchMovieDataCollection.removeAll()
+            self.searchBar?.removeFromSuperview()
+            self.searchBar = nil
+            self.navigationItem.rightBarButtonItem?.title = "Search"
+            isCurrentlySearching = false
+        }
+        else{
+            self.navigationItem.rightBarButtonItem?.title = "Cancel"
+            self.searchBar  = UISearchBar()
+            self.searchBar?.delegate = self
+            self.navigationItem.titleView = self.searchBar
+            isCurrentlySearching = true
+        }
+        self.collectionView.reloadData()
+    }
+    
+    @objc func sortClicked(){
+        let alertController = UIAlertController(title: "Sort", message: "please select", preferredStyle: .actionSheet)
+        
+        let popularAscAction = UIAlertAction(title: "most popular ", style: .default, handler: { _ in
+            self.sortDescriptor = .POPULAR_DESC
+        })
+        
+        let popularDescAction = UIAlertAction(title: "Least popular ", style: .default, handler: { _ in
+            self.sortDescriptor = .POPULAR_ASC
+        })
+        
+        let ratingAscAction = UIAlertAction(title: "Higest Rated ", style: .default, handler: { _ in
+            self.sortDescriptor = .RATING_HIGH
+        })
+        
+        let ratingDescAction = UIAlertAction(title: "Low Rated", style: .default, handler: { _ in
+            self.sortDescriptor = .RATING_LOW
+        })
+        
+        alertController.addAction(popularAscAction)
+        alertController.addAction(popularDescAction)
+        alertController.addAction(ratingAscAction)
+        alertController.addAction(ratingDescAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func setSorting(){
+        if let sortD = sortDescriptor{
+            self.movieDataCollection.sort(by: sortD.getSortDescriptor())
+            self.collectionView.reloadData()
+        }
+        
     }
     
     func loadFalseData(){
         
         
-//        Movie(from: <#T##Decoder#>)
-        
-        
-       // self.movieDataCollection = ["title 1", "title 2" , "title 3" , "title 4" , "title 5" , "title 6" , "title 7"]
+//        self.movieDataCollection = ["title 1", "title 2" , "title 3" , "title 4" , "title 5" , "title 6" , "title 7" , "title 8" , "title 9" , "title 10"]
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -80,26 +177,43 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.movieDataCollection.count
+        return self.isCurrentlySearching ?  self.searchMovieDataCollection.count : self.movieDataCollection.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cellView = collectionView.dequeueReusableCell(withReuseIdentifier: "moiveCellIdenfire", for: indexPath) as! MoviePosterCollectionViewCell
         
-        let dataHolder = self.movieDataCollection[indexPath.row]
+        let dataHolder = isCurrentlySearching ? self.searchMovieDataCollection[indexPath.row] : self.movieDataCollection[indexPath.row]
         
         cellView.lblTitle.text = dataHolder.title
-        
+        let posterPath = imageBaseUrl + (dataHolder.posterPath ?? "")
+        cellView.imgWithBadge.loanAsyncImage(urlString: posterPath)
         cellView.backgroundColor = .red
         
         return cellView
     }
     
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+        if isCurrentlySearching{
+            if indexPath.row == (self.searchMovieDataCollection.count - 1) {
+                guard let searchText = self.searchBar?.text else{ return}
+                fetchSearchMoviesResult(for: searchText)
+            }
+        }
+        else{
+            if indexPath.row == (self.movieDataCollection.count - 1) {
+                fetchTrendingMovies()
+            }
+        }
+        
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let movieObj = isCurrentlySearching ? self.searchMovieDataCollection[indexPath.row] : self.movieDataCollection[indexPath.row]
         
-        
-        
-//        self.navigationController?.pushViewController(DetailViewController(), animated: true)
+        self.navigationController?.pushViewController(DetailViewController(movie: movieObj), animated: true)
         
     }
     
@@ -124,6 +238,24 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
     }
 }
 
+extension MasterViewController :UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let searchString = searchBar.text{
+            fetchSearchMoviesResult(for: searchString)
+        }
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.searchMovieDataCollection.removeAll()
+        self.currentSearchPageNumber = 1
+    }
+    
+    
+    func searchMovie(){
+        
+    }
+}
 
 extension MasterViewController {
     func fetchTrendingMovies(){
@@ -134,7 +266,33 @@ extension MasterViewController {
             
             if let resMovies = trendingMovies{
                 self.movieDataCollection.append(contentsOf: resMovies.results)
+                if let sortD = self.sortDescriptor{
+                    self.movieDataCollection.sort(by: sortD.getSortDescriptor())
+                    
+                }
                 self.currentPageNumber += 1
+                OperationQueue.main.addOperation {
+                    self.collectionView.reloadData()
+                }
+                
+            }
+        }
+    }
+    
+    
+    func fetchSearchMoviesResult(for str : String){
+        let url = ServicePathLocator.search.getUrl(with: [])
+        let param : [String : AnyObject] = ["api_key" : "15686190614b58f74e62506048465097" as AnyObject ,"query" : str as AnyObject , "page" : self.currentPageNumber as AnyObject]
+        excuteRESTService(type: TrendingMovies.self, Alamofire.HTTPMethod.get, serviceUrl: url, param: param){
+            trendingMovies  , err , status in
+            
+            if let resMovies = trendingMovies{
+                self.searchMovieDataCollection.append(contentsOf: resMovies.results)
+                if let sortD = self.sortDescriptor{
+                    self.searchMovieDataCollection.sort(by: sortD.getSortDescriptor())
+                    
+                }
+                self.currentSearchPageNumber += 1
                 OperationQueue.main.addOperation {
                     self.collectionView.reloadData()
                 }
@@ -145,11 +303,5 @@ extension MasterViewController {
 }
 
 
-class CustomAsyncImageView : UIImageView{
-    var currentUrlString : String?
-    
-    func loanAsyncImage(){
-        
-    }
-    
-}
+
+
