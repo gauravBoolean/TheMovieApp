@@ -14,50 +14,56 @@ let moviePosterImageCache = NSCache<NSString, UIImage>()
 class MoviePosterCollectionViewCell : UICollectionViewCell{
     
     
-    let imgWithBadge : CustomAsyncImageView = {
+    let imgMoviePoster : CustomAsyncImageView = {
         let img = CustomAsyncImageView()        
         img.contentMode = .scaleAspectFit
+        img.image = UIImage(named: "imgPlaceholder")
         img.translatesAutoresizingMaskIntoConstraints = false
         return img
     }()
     
     
     let lblTitle : UILabel = {
-        let dateLabel = UILabel()
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.font = UIFont.systemFont(ofSize: 12)
-        dateLabel.numberOfLines = 2
-        dateLabel.textAlignment = .center
-        dateLabel.textColor = UIColor(red: 94.0/255.0, green: 94.0/255.0, blue: 94.0/255.0, alpha: 1)
-        return dateLabel
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.boldSystemFont(ofSize: 14)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.textColor = .white 
+        return label
     }()
     override init(frame: CGRect){
         super.init(frame: frame)
         
         self.contentView.addSubview(lblTitle)
-        self.contentView.addSubview(imgWithBadge)
+        self.contentView.addSubview(imgMoviePoster)
         
         
         
         NSLayoutConstraint.activate([
-            imgWithBadge.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor),
+            imgMoviePoster.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor),
             //imgWithBadge.leftAnchor.constraint(equalTo: self.contentView.leftAnchor, constant: 0),
             //imgWithBadge.rightAnchor.constraint(equalTo: self.contentView.rightAnchor, constant: 0),
-            imgWithBadge.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 15),
-            imgWithBadge.widthAnchor.constraint(equalToConstant: 60),
-            imgWithBadge.heightAnchor.constraint(equalToConstant: 60)
+            imgMoviePoster.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 15),
+//            imgMoviePoster.widthAnchor.constraint(equalToConstant: 60),
+//            imgMoviePoster.heightAnchor.constraint(equalToConstant: 60)
             ])
         
         NSLayoutConstraint.activate([
             
             lblTitle.leftAnchor.constraint(equalTo: self.contentView.leftAnchor, constant: 2),
             lblTitle.rightAnchor.constraint(equalTo: self.contentView.rightAnchor, constant: -2),
-            lblTitle.topAnchor.constraint(equalTo: self.imgWithBadge.bottomAnchor, constant: 0),
-            //lblTitle.heightAnchor.constraint(equalToConstant: 30)
+            lblTitle.topAnchor.constraint(equalTo: self.imgMoviePoster.bottomAnchor, constant: 0),
+            lblTitle.heightAnchor.constraint(equalToConstant: 30),
             lblTitle.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: 0)
             ])
         
-        //self.contentView.addRightBorder(color: TenoUIConstants.GRAY_LINE_COLOR, width: 1)
+        
+        
+        self.layer.cornerRadius = 10
+        self.layer.borderColor = UIColor.black.cgColor
+        self.layer.borderWidth = 2
+        
         
     }
     
@@ -75,8 +81,6 @@ class CustomAsyncImageView : UIImageView{
     
     func loanAsyncImage(urlString : String){
         currentUrlString = urlString
-        
-        image = nil
         if let img = moviePosterImageCache.object(forKey: urlString as NSString){
             self.image = img
             return

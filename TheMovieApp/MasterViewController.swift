@@ -47,8 +47,6 @@ class MasterViewController: UIViewController {
     let collectionView : UICollectionView = {
         
         let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.minimumLineSpacing = 5.0
-        flowLayout.sectionInset = UIEdgeInsets(top: 20, left: 0, bottom: 10, right: 0)
         flowLayout.scrollDirection = .vertical
         let collection  = UICollectionView(frame: CGRect.zero, collectionViewLayout: flowLayout)
         collection.translatesAutoresizingMaskIntoConstraints = false
@@ -61,6 +59,11 @@ class MasterViewController: UIViewController {
     var searchMovieDataCollection = [Movie]()
     var isCurrentlySearching : Bool = false
     
+    lazy var movieCellSize : CGSize = {
+        let s = view.frame.width/4
+        let h : CGFloat = view.frame.height/4.5
+        return CGSize(width: s, height: h)
+    }()
 
     
     var sortDescriptor : MovieSortDescriptor? {
@@ -75,7 +78,7 @@ class MasterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .red
+
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
@@ -86,7 +89,7 @@ class MasterViewController: UIViewController {
             ])
        
         
-        collectionView.backgroundColor = .green
+        collectionView.backgroundColor = .white
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -183,8 +186,8 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
         
         cellView.lblTitle.text = dataHolder.title
         let posterPath = imageBaseUrl + (dataHolder.posterPath ?? "")
-        cellView.imgWithBadge.loanAsyncImage(urlString: posterPath)
-        cellView.backgroundColor = .red
+        cellView.imgMoviePoster.loanAsyncImage(urlString: posterPath)
+        cellView.backgroundColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
         
         return cellView
     }
@@ -213,22 +216,21 @@ extension MasterViewController : UICollectionViewDelegate , UICollectionViewData
         
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
+
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize{
-        let s = (collectionView.frame.width/4)
-        let h : CGFloat = 100
-        return CGSize(width: s, height: h)
+        return movieCellSize
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 5, left: 5, bottom: 0, right: 5)
+    }
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        return 3
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
